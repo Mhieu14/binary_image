@@ -26,20 +26,22 @@ def imread(url):
         img = cv.imread(url, cv.IMREAD_COLOR)
     return img
 
-def basicThreshold(image, threshold):
+def basicThreshold(image, threshold, dt_value = 255):
     if(not isinstance(image, np.ndarray)):
         raise Exception("image need to be numpy.ndarray")
     if(len(image.shape) != 2):
         raise Exception("image need to be gray scale")
-    shape0 = image.shape[0]
-    shape1 = image.shape[1]
-    output = np.arange(shape0*shape1).reshape(shape0, shape1)
-    for i in range(shape0):
-        for j in range(shape1):
-            if (image[i][j] >= threshold):
-                output[i][j] = 255
-            else:
-                output[i][j] = 0
+    # shape0 = image.shape[0]
+    # shape1 = image.shape[1]
+    # output = np.arange(shape0*shape1).reshape(shape0, shape1)
+    # for i in range(shape0):
+    #     for j in range(shape1):
+    #         if (image[i][j] >= threshold):
+    #             output[i][j] = 255
+    #         else:
+    #             output[i][j] = 0
+    output = np.zeros_like(image)
+    output[image >= threshold] = dt_value
     output = np.uint8(output)
     return output
 
@@ -59,8 +61,9 @@ def meanAdaptiveThreshold(image, blockSize, c):
             iStartPoint = (i - halfBlock) if (i - halfBlock >= 0) else 0
             jStartPoint = (j - halfBlock) if (j - halfBlock >= 0) else 0
             iFinishPoint = (i + halfBlock + 1) if (i + halfBlock + 1 <= shape0) else shape0
-            jFinishPoint = (j + halfBlock) + 1 if (j + halfBlock + 1 <= shape1) else shape1
-            threshold = np.mean(image[iStartPoint : iFinishPoint , jStartPoint : jFinishPoint]) - c
+            jFinishPoint = (j + halfBlock + 1) if (j + halfBlock + 1 <= shape1) else shape1
+            threshold = np.mean(image[iStartPoint : iFinishPoint , jStartPoint : jFinishPoint]) - c  
+            # threshold = np.sum(image[iStartPoint : iFinishPoint , jStartPoint : jFinishPoint]) / (blockSize * blockSize) - c    
             output[i][j] = 255 if (image[i][j] > threshold) else 0
     output = np.uint8(output)
     return output
